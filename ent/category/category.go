@@ -43,11 +43,6 @@ func ValidColumn(column string) bool {
 	return false
 }
 
-var (
-	// DefaultTitle holds the default value on creation for the "title" field.
-	DefaultTitle string
-)
-
 // OrderOption defines the ordering options for the Category queries.
 type OrderOption func(*sql.Selector)
 

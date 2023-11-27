@@ -5,7 +5,6 @@ package ent
 import (
 	"time"
 	"tracker/ent/balance"
-	"tracker/ent/category"
 	"tracker/ent/schema"
 	"tracker/ent/transaction"
 )
@@ -20,12 +19,6 @@ func init() {
 	balanceDescTitle := balanceFields[0].Descriptor()
 	// balance.DefaultTitle holds the default value on creation for the title field.
 	balance.DefaultTitle = balanceDescTitle.Default.(string)
-	categoryFields := schema.Category{}.Fields()
-	_ = categoryFields
-	// categoryDescTitle is the schema descriptor for title field.
-	categoryDescTitle := categoryFields[0].Descriptor()
-	// category.DefaultTitle holds the default value on creation for the title field.
-	category.DefaultTitle = categoryDescTitle.Default.(string)
 	transactionFields := schema.Transaction{}.Fields()
 	_ = transactionFields
 	// transactionDescDescription is the schema descriptor for description field.

@@ -14,7 +14,7 @@ type Category struct {
 // Fields of the User.
 func (Category) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("title").Default(""),
+		field.String("title").Unique(),
 	}
 }
 

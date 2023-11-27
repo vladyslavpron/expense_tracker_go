@@ -26,14 +26,6 @@ func (cc *CategoryCreate) SetTitle(s string) *CategoryCreate {
 	return cc
 }
 
-// SetNillableTitle sets the "title" field if the given value is not nil.
-func (cc *CategoryCreate) SetNillableTitle(s *string) *CategoryCreate {
-	if s != nil {
-		cc.SetTitle(*s)
-	}
-	return cc
-}
-
 // AddTransactionIDs adds the "transactions" edge to the Transaction entity by IDs.
 func (cc *CategoryCreate) AddTransactionIDs(ids ...int) *CategoryCreate {
 	cc.mutation.AddTransactionIDs(ids...)
@@ -56,7 +48,6 @@ func (cc *CategoryCreate) Mutation() *CategoryMutation {
 
 // Save creates the Category in the database.
 func (cc *CategoryCreate) Save(ctx context.Context) (*Category, error) {
-	cc.defaults()
 	return withHooks(ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
@@ -79,14 +70,6 @@ func (cc *CategoryCreate) Exec(ctx context.Context) error {
 func (cc *CategoryCreate) ExecX(ctx context.Context) {
 	if err := cc.Exec(ctx); err != nil {
 		panic(err)
-	}
-}
-
-// defaults sets the default values of the builder before save.
-func (cc *CategoryCreate) defaults() {
-	if _, ok := cc.mutation.Title(); !ok {
-		v := category.DefaultTitle
-		cc.mutation.SetTitle(v)
 	}
 }
 
@@ -162,7 +145,6 @@ func (ccb *CategoryCreateBulk) Save(ctx context.Context) ([]*Category, error) {
 	for i := range ccb.builders {
 		func(i int, root context.Context) {
 			builder := ccb.builders[i]
-			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*CategoryMutation)
 				if !ok {
