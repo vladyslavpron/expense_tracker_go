@@ -14,10 +14,10 @@
         <div class="balance">{{.ID}}, {{.Title}}</div>
         {{end}}
       </div>
-      <form>
+      <form id="create-balance-form">
         <label for="title">Title</label>
         <input type="text" name="title" id="title" />
-        <button id="balance-btn" type="button">Create Balance</button>
+        <button id="balance-btn" type="submit">Create Balance</button>
       </form>
     </div>
     <div class="categories-container">
@@ -50,26 +50,90 @@
         </div>
         {{end}}
       </div>
+      <form id="create-transaction-form">
+        <label for="transaction-description">Description</label>
+        <input
+          type="text"
+          name="transaction-description"
+          id="create-transaction-description"
+          required
+        />
+        <label for="transaction-amount">Amount</label>
+        <input
+          type="number"
+          name="transaction-amount"
+          id="create-transaction-amount"
+          required
+        />
+        <label for="transaction-category">Category</label>
+        <select name="transaction-category" id="create-transaction-category">
+          {{range .Categories}}
+          <option value="{{.ID}}">{{.Title}}</option>
+          {{end}}
+        </select>
+        <label for="transaction-balance">Balance</label>
+        <select name="transaction-balance" id="create-transaction-balance">
+          {{range .Balances}}
+          <option value="{{.ID}}">{{.Title}}</option>
+          {{end}}
+        </select>
+        <button id="create-transaction-btn" type="submit">
+          Create Transaction
+        </button>
+      </form>
     </div>
   </div>
   <script>
-    const btn = document.querySelector("#balance-btn");
-    btn.addEventListener("click", async (e) => {
-      e.preventDefault();
-      const title = document.querySelector("#title").value;
-      console.log(title);
-      const body = { title };
-      console.log(body);
+    (function () {
+      // create transaction
+      const btn = document.querySelector("#create-transaction-btn");
+      btn.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const description = document.querySelector(
+          "#create-transaction-description"
+        ).value;
+        const amount = Number(
+          document.querySelector("#create-transaction-amount").value
+        );
+        const categoryId = Number(
+          document.querySelector("#create-transaction-category").value
+        );
+        const balanceId = Number(
+          document.querySelector("#create-transaction-balance").value
+        );
+        const body = { description, amount, categoryId, balanceId };
+        const response = await fetch("api/transaction", {
+          method: "POST",
+          body: JSON.stringify(body),
+          headers: {
+            "content-type": "Application/json",
+          },
+        }).then((r) => r.json());
+        window.location.reload();
+      });
+    })();
+  </script>
 
-      const response = await fetch("api/balance", {
-        method: "POST",
-        body: JSON.stringify(body),
-        headers: {
-          "content-type": "Application/json",
-        },
-      }).then((r) => r.json());
-      console.log(response);
-      window.location.reload();
-    });
+  <script>
+    // create balance
+    (function () {
+      const btn = document.querySelector("#balance-btn");
+      btn.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const title = document.querySelector("#title").value;
+        console.log(title);
+        const body = { title };
+        console.log(body);
+
+        const response = await fetch("api/balance", {
+          method: "POST",
+          body: JSON.stringify(body),
+          headers: {
+            "content-type": "Application/json",
+          },
+        }).then((r) => r.json());
+        window.location.reload();
+      });
+    })();
   </script>
 </body>

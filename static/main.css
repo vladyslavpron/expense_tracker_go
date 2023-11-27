@@ -34,8 +34,13 @@ form {
   justify-content: space-between;
 }
 
-form input {
-  margin-bottom: 10px;
+form label {
+  margin-top: 10px;
+}
+
+form button {
+  margin-top: 10px;
+  font-size: 1.2rem;
 }
 
 .transaction-card {
