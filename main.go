@@ -36,13 +36,18 @@ func main() {
 
 	r.GET("/", func(ctx *gin.Context) {
 		b, _ := bh.GetBalances(ctx)
-		c, _ := ch.GetCategories(ctx)
+		categories, _ := ch.GetCategories(ctx)
 		t, _ := th.GetTransactions(ctx, transactionHandler.GetTransactionsParams{})
+		categoryTitles := make(map[int]string, len(b))
+		for _, category := range categories {
+			categoryTitles[category.ID] = category.Title
+		}
 
 		data := MainTemplateData{
-			Balances:     b,
-			Categories:   c,
-			Transactions: t,
+			Balances:       b,
+			Categories:     categories,
+			Transactions:   t,
+			CategoryTitles: categoryTitles,
 		}
 
 		tmpl.Execute(ctx.Writer, data)
@@ -68,9 +73,10 @@ func main() {
 }
 
 type MainTemplateData struct {
-	Balances     []*ent.Balance
-	Categories   []*ent.Category
-	Transactions []*ent.Transaction
+	Balances       []*ent.Balance
+	Categories     []*ent.Category
+	Transactions   []*ent.Transaction
+	CategoryTitles map[int]string
 }
 
 func TestHandler(ctx *gin.Context) {

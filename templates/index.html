@@ -1,3 +1,4 @@
+{{$categoryTitles:=.CategoryTitles}}
 <head>
   <title>Tracker</title>
   <link rel="stylesheet" type="text/css" href="static/main.css" />
@@ -34,10 +35,15 @@
         <div
           class="transaction-card {{if gt $transaction.Amount 0.0}} transaction-positive {{else}} transaction-negative {{end}}"
         >
-          <div class="transaction-card-description">
-            {{$transaction.Description}}
+          <div class="transaction-card-category">
+            Category: {{index $categoryTitles $transaction.CategoryID}}
           </div>
-          <div class="transaction-card-amount">{{$transaction.Amount}}</div>
+          <div class="transaction-card-description">
+            Description: {{$transaction.Description}}
+          </div>
+          <div class="transaction-card-amount">
+            Amount: {{$transaction.Amount}}
+          </div>
           <div class="transaction-created-at">
             {{$transaction.CreatedAt.Format "Mon, Jan 02, 2006 15:04 UTC"}}
           </div>
@@ -55,7 +61,7 @@
       const body = { title };
       console.log(body);
 
-      const response = await fetch("http://localhost:8080/api/balance", {
+      const response = await fetch("api/balance", {
         method: "POST",
         body: JSON.stringify(body),
         headers: {
