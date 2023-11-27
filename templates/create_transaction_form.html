@@ -1,0 +1,62 @@
+{{define "createTransaction"}}
+<form id="create-transaction-form">
+  <label for="transaction-description">Description</label>
+  <input
+    type="text"
+    name="transaction-description"
+    id="create-transaction-description"
+    required
+  />
+  <label for="transaction-amount">Amount</label>
+  <input
+    type="number"
+    name="transaction-amount"
+    id="create-transaction-amount"
+    required
+  />
+  <label for="transaction-category">Category</label>
+  <select name="transaction-category" id="create-transaction-category">
+    {{range .Categories}}
+    <option value="{{.ID}}">{{.Title}}</option>
+    {{end}}
+  </select>
+  <label for="transaction-balance">Balance</label>
+  <select name="transaction-balance" id="create-transaction-balance">
+    {{range .Balances}}
+    <option value="{{.ID}}">{{.Title}}</option>
+    {{end}}
+  </select>
+  <button id="create-transaction-btn" type="submit">Create Transaction</button>
+</form>
+
+<script>
+  (function () {
+    // create transaction
+    const form = document.querySelector("#create-transaction-form");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const description = document.querySelector(
+        "#create-transaction-description"
+      ).value;
+      const amount = Number(
+        document.querySelector("#create-transaction-amount").value
+      );
+      const categoryId = Number(
+        document.querySelector("#create-transaction-category").value
+      );
+      const balanceId = Number(
+        document.querySelector("#create-transaction-balance").value
+      );
+      const body = { description, amount, categoryId, balanceId };
+      const response = await fetch("api/transaction", {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+          "content-type": "Application/json",
+        },
+      }).then((r) => r.json());
+      window.location.reload();
+    });
+  })();
+</script>
+{{end}}

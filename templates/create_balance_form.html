@@ -1,0 +1,30 @@
+{{define "createBalance"}}
+<form id="create-balance-form">
+  <label for="title">Title</label>
+  <input type="text" name="title" id="title" required />
+  <button id="create-balance-btn" type="submit">Create Balance</button>
+</form>
+
+<script>
+  // create balance
+  (function () {
+    const form = document.querySelector("#create-balance-form");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.querySelector("#title").value;
+      console.log(title);
+      const body = { title };
+      console.log(body);
+
+      const response = await fetch("api/balance", {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+          "content-type": "Application/json",
+        },
+      }).then((r) => r.json());
+      window.location.reload();
+    });
+  })();
+</script>
+{{end}}

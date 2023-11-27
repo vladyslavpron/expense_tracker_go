@@ -1,0 +1,33 @@
+{{define "createCategory"}}
+
+<form id="create-category-form">
+  <label for="create-category-title">Title</label>
+  <input
+    type="text"
+    name="create-category-title"
+    id="create-category-title"
+    required
+  />
+  <button id="create-category-btn" type="submit">Create Category</button>
+</form>
+
+<script>
+  (function () {
+    // create category
+    const form = document.querySelector("#create-category-form");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.querySelector("#create-category-title").value;
+      const body = { title };
+      const response = await fetch("api/category", {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+          "content-type": "Application/json",
+        },
+      }).then((r) => r.json());
+      window.location.reload();
+    });
+  })();
+</script>
+{{end}}

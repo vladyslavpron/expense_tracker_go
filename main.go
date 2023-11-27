@@ -26,7 +26,7 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	tmpl := template.Must(template.ParseFiles("./templates/index.html"))
+	tmpl := template.Must(template.ParseGlob("./templates/*"))
 
 	r := gin.Default()
 
@@ -50,7 +50,7 @@ func main() {
 			CategoryTitles: categoryTitles,
 		}
 
-		tmpl.Execute(ctx.Writer, data)
+		tmpl.ExecuteTemplate(ctx.Writer, "main", data)
 	})
 
 	r.Static("/static", "./static")
