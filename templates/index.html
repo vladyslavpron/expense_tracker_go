@@ -1,0 +1,69 @@
+<head>
+  <title>Tracker</title>
+  <link rel="stylesheet" type="text/css" href="static/main.css" />
+  <link rel="stylesheet" type="text/css" href="../static/main.css" />
+</head>
+<body>
+  <h1 class="main-header">Expense tracker</h1>
+  <div class="main-container">
+    <div class="balances-container">
+      <h2 class="balances-header">Balances</h2>
+      <div class="balances-list">
+        {{range .Balances}}
+        <div class="balance">{{.ID}}, {{.Title}}</div>
+        {{end}}
+      </div>
+      <form>
+        <label for="title">Title</label>
+        <input type="text" name="title" id="title" />
+        <button id="balance-btn" type="button">Create Balance</button>
+      </form>
+    </div>
+    <div class="categories-container">
+      <h2 class="categories-header">Categories</h2>
+      <div class="categories-list">
+        {{range .Categories}}
+        <div class="category">{{.ID}}, {{.Title}}</div>
+        {{end}}
+      </div>
+    </div>
+    <div class="transactions-container">
+      <h2 class="transactions-header">Transactions</h2>
+      <div class="transactions-list">
+        {{range $i, $transaction := .Transactions}}
+        <div
+          class="transaction-card {{if gt $transaction.Amount 0.0}} transaction-positive {{else}} transaction-negative {{end}}"
+        >
+          <div class="transaction-card-description">
+            {{$transaction.Description}}
+          </div>
+          <div class="transaction-card-amount">{{$transaction.Amount}}</div>
+          <div class="transaction-created-at">
+            {{$transaction.CreatedAt.Format "Mon, Jan 02, 2006 15:04 UTC"}}
+          </div>
+        </div>
+        {{end}}
+      </div>
+    </div>
+  </div>
+  <script>
+    const btn = document.querySelector("#balance-btn");
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const title = document.querySelector("#title").value;
+      console.log(title);
+      const body = { title };
+      console.log(body);
+
+      const response = await fetch("http://localhost:8080/api/balance", {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+          "content-type": "Application/json",
+        },
+      }).then((r) => r.json());
+      console.log(response);
+      window.location.reload();
+    });
+  </script>
+</body>

@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
@@ -16,6 +18,7 @@ func (Transaction) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("description").Default(""),
 		field.Float32("amount"),
+		field.Time("created_at").Default(time.Now),
 		field.Int("balance_id"),
 		field.Int("category_id"),
 	}

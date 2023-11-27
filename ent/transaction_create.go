@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 	"tracker/ent/balance"
 	"tracker/ent/category"
 	"tracker/ent/transaction"
@@ -38,6 +39,20 @@ func (tc *TransactionCreate) SetNillableDescription(s *string) *TransactionCreat
 // SetAmount sets the "amount" field.
 func (tc *TransactionCreate) SetAmount(f float32) *TransactionCreate {
 	tc.mutation.SetAmount(f)
+	return tc
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (tc *TransactionCreate) SetCreatedAt(t time.Time) *TransactionCreate {
+	tc.mutation.SetCreatedAt(t)
+	return tc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (tc *TransactionCreate) SetNillableCreatedAt(t *time.Time) *TransactionCreate {
+	if t != nil {
+		tc.SetCreatedAt(*t)
+	}
 	return tc
 }
 
@@ -102,6 +117,10 @@ func (tc *TransactionCreate) defaults() {
 		v := transaction.DefaultDescription
 		tc.mutation.SetDescription(v)
 	}
+	if _, ok := tc.mutation.CreatedAt(); !ok {
+		v := transaction.DefaultCreatedAt()
+		tc.mutation.SetCreatedAt(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -111,6 +130,9 @@ func (tc *TransactionCreate) check() error {
 	}
 	if _, ok := tc.mutation.Amount(); !ok {
 		return &ValidationError{Name: "amount", err: errors.New(`ent: missing required field "Transaction.amount"`)}
+	}
+	if _, ok := tc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Transaction.created_at"`)}
 	}
 	if _, ok := tc.mutation.BalanceID(); !ok {
 		return &ValidationError{Name: "balance_id", err: errors.New(`ent: missing required field "Transaction.balance_id"`)}
@@ -157,6 +179,10 @@ func (tc *TransactionCreate) createSpec() (*Transaction, *sqlgraph.CreateSpec) {
 	if value, ok := tc.mutation.Amount(); ok {
 		_spec.SetField(transaction.FieldAmount, field.TypeFloat32, value)
 		_node.Amount = value
+	}
+	if value, ok := tc.mutation.CreatedAt(); ok {
+		_spec.SetField(transaction.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
 	}
 	if nodes := tc.mutation.BalanceIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

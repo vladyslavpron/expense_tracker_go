@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 	"tracker/ent/balance"
 	"tracker/ent/category"
 	"tracker/ent/predicate"
@@ -61,6 +62,20 @@ func (tu *TransactionUpdate) SetNillableAmount(f *float32) *TransactionUpdate {
 // AddAmount adds f to the "amount" field.
 func (tu *TransactionUpdate) AddAmount(f float32) *TransactionUpdate {
 	tu.mutation.AddAmount(f)
+	return tu
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (tu *TransactionUpdate) SetCreatedAt(t time.Time) *TransactionUpdate {
+	tu.mutation.SetCreatedAt(t)
+	return tu
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (tu *TransactionUpdate) SetNillableCreatedAt(t *time.Time) *TransactionUpdate {
+	if t != nil {
+		tu.SetCreatedAt(*t)
+	}
 	return tu
 }
 
@@ -178,6 +193,9 @@ func (tu *TransactionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := tu.mutation.AddedAmount(); ok {
 		_spec.AddField(transaction.FieldAmount, field.TypeFloat32, value)
 	}
+	if value, ok := tu.mutation.CreatedAt(); ok {
+		_spec.SetField(transaction.FieldCreatedAt, field.TypeTime, value)
+	}
 	if tu.mutation.BalanceCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -288,6 +306,20 @@ func (tuo *TransactionUpdateOne) SetNillableAmount(f *float32) *TransactionUpdat
 // AddAmount adds f to the "amount" field.
 func (tuo *TransactionUpdateOne) AddAmount(f float32) *TransactionUpdateOne {
 	tuo.mutation.AddAmount(f)
+	return tuo
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (tuo *TransactionUpdateOne) SetCreatedAt(t time.Time) *TransactionUpdateOne {
+	tuo.mutation.SetCreatedAt(t)
+	return tuo
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (tuo *TransactionUpdateOne) SetNillableCreatedAt(t *time.Time) *TransactionUpdateOne {
+	if t != nil {
+		tuo.SetCreatedAt(*t)
+	}
 	return tuo
 }
 
@@ -434,6 +466,9 @@ func (tuo *TransactionUpdateOne) sqlSave(ctx context.Context) (_node *Transactio
 	}
 	if value, ok := tuo.mutation.AddedAmount(); ok {
 		_spec.AddField(transaction.FieldAmount, field.TypeFloat32, value)
+	}
+	if value, ok := tuo.mutation.CreatedAt(); ok {
+		_spec.SetField(transaction.FieldCreatedAt, field.TypeTime, value)
 	}
 	if tuo.mutation.BalanceCleared() {
 		edge := &sqlgraph.EdgeSpec{

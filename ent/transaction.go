@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 	"tracker/ent/balance"
 	"tracker/ent/category"
 	"tracker/ent/transaction"
@@ -22,6 +23,8 @@ type Transaction struct {
 	Description string `json:"description,omitempty"`
 	// Amount holds the value of the "amount" field.
 	Amount float32 `json:"amount,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
 	// BalanceID holds the value of the "balance_id" field.
 	BalanceID int `json:"balance_id,omitempty"`
 	// CategoryID holds the value of the "category_id" field.
@@ -80,6 +83,8 @@ func (*Transaction) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case transaction.FieldDescription:
 			values[i] = new(sql.NullString)
+		case transaction.FieldCreatedAt:
+			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -112,6 +117,12 @@ func (t *Transaction) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field amount", values[i])
 			} else if value.Valid {
 				t.Amount = float32(value.Float64)
+			}
+		case transaction.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				t.CreatedAt = value.Time
 			}
 		case transaction.FieldBalanceID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -176,6 +187,9 @@ func (t *Transaction) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("amount=")
 	builder.WriteString(fmt.Sprintf("%v", t.Amount))
+	builder.WriteString(", ")
+	builder.WriteString("created_at=")
+	builder.WriteString(t.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("balance_id=")
 	builder.WriteString(fmt.Sprintf("%v", t.BalanceID))

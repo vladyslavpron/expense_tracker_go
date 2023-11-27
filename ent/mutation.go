@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 	"tracker/ent/balance"
 	"tracker/ent/category"
 	"tracker/ent/predicate"
@@ -878,6 +879,7 @@ type TransactionMutation struct {
 	description     *string
 	amount          *float32
 	addamount       *float32
+	created_at      *time.Time
 	clearedFields   map[string]struct{}
 	balance         *int
 	clearedbalance  bool
@@ -1078,6 +1080,42 @@ func (m *TransactionMutation) ResetAmount() {
 	m.addamount = nil
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (m *TransactionMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *TransactionMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Transaction entity.
+// If the Transaction object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TransactionMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *TransactionMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
 // SetBalanceID sets the "balance_id" field.
 func (m *TransactionMutation) SetBalanceID(i int) {
 	m.balance = &i
@@ -1238,12 +1276,15 @@ func (m *TransactionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TransactionMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.description != nil {
 		fields = append(fields, transaction.FieldDescription)
 	}
 	if m.amount != nil {
 		fields = append(fields, transaction.FieldAmount)
+	}
+	if m.created_at != nil {
+		fields = append(fields, transaction.FieldCreatedAt)
 	}
 	if m.balance != nil {
 		fields = append(fields, transaction.FieldBalanceID)
@@ -1263,6 +1304,8 @@ func (m *TransactionMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case transaction.FieldAmount:
 		return m.Amount()
+	case transaction.FieldCreatedAt:
+		return m.CreatedAt()
 	case transaction.FieldBalanceID:
 		return m.BalanceID()
 	case transaction.FieldCategoryID:
@@ -1280,6 +1323,8 @@ func (m *TransactionMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldDescription(ctx)
 	case transaction.FieldAmount:
 		return m.OldAmount(ctx)
+	case transaction.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
 	case transaction.FieldBalanceID:
 		return m.OldBalanceID(ctx)
 	case transaction.FieldCategoryID:
@@ -1306,6 +1351,13 @@ func (m *TransactionMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAmount(v)
+		return nil
+	case transaction.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
 		return nil
 	case transaction.FieldBalanceID:
 		v, ok := value.(int)
@@ -1390,6 +1442,9 @@ func (m *TransactionMutation) ResetField(name string) error {
 		return nil
 	case transaction.FieldAmount:
 		m.ResetAmount()
+		return nil
+	case transaction.FieldCreatedAt:
+		m.ResetCreatedAt()
 		return nil
 	case transaction.FieldBalanceID:
 		m.ResetBalanceID()

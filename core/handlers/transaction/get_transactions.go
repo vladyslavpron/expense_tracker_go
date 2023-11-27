@@ -1,30 +1,25 @@
 package transactionHandler
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
 	"tracker/core/logger"
+	"tracker/ent"
 	"tracker/ent/transaction"
 
 	"github.com/gin-gonic/gin"
 )
 
-func (c *TransactionHandler) GetTransactions(ctx *gin.Context) {
+func (c *TransactionHandler) GetTransactionsHandler(ctx *gin.Context) {
 
-	balanceId, bIdPresent := ctx.GetQuery("balance_id")
-	categoryId, cIdPresent := ctx.GetQuery("category_id")
-	// params to get transactions per category or balance, with pagination?
+	balanceIdString, _ := ctx.GetQuery("balance_id")
+	categoryIdString, _ := ctx.GetQuery("category_id")
+	balanceId, _ := strconv.Atoi(balanceIdString)
+	categoryId, _ := strconv.Atoi(categoryIdString)
 
-	// need to return count if with pagination
-	query := c.DB.Transaction.Query()
-	if bId, err := strconv.Atoi(balanceId); err == nil && bIdPresent {
-		query.Where(transaction.BalanceID(bId))
-	}
-	if cId, err := strconv.Atoi(categoryId); err == nil && cIdPresent {
-		query.Where(transaction.CategoryID(cId))
-	}
-	t, err := query.All(ctx)
+	t, err := c.GetTransactions(ctx, GetTransactionsParams{BalanceID: balanceId, CategoryId: categoryId})
 	if err != nil {
 		logger.Err("failed getting transactions: " + err.Error())
 		ctx.JSON(http.StatusInternalServerError, "Can't get transactions")
@@ -33,4 +28,29 @@ func (c *TransactionHandler) GetTransactions(ctx *gin.Context) {
 	fmt.Println(t)
 
 	ctx.JSON(http.StatusOK, t)
+}
+
+func (c *TransactionHandler) GetTransactions(ctx context.Context, params GetTransactionsParams) ([]*ent.Transaction, error) {
+
+	// need to return count if with pagination
+	query := c.DB.Transaction.Query()
+	if params.BalanceID != 0 {
+		query.Where(transaction.BalanceID(params.BalanceID))
+	}
+	if params.CategoryId != 0 {
+		query.Where(transaction.CategoryID(params.CategoryId))
+	}
+	t, err := query.All(ctx)
+	if err != nil {
+		logger.Err("failed getting transactions: " + err.Error())
+		return nil, err
+	}
+	logger.Log("completed transactions search")
+
+	return t, nil
+}
+
+type GetTransactionsParams struct {
+	BalanceID  int
+	CategoryId int
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"html/template"
 	"log"
 	"net/http"
 	balanceHandler "tracker/core/handlers/balance"
@@ -25,23 +26,51 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
+	tmpl := template.Must(template.ParseFiles("./templates/index.html"))
+
 	r := gin.Default()
-	r.GET("/ping", PingHandler)
-	r.GET("/test", TestHandler)
 
 	bh := balanceHandler.BalanceHandler{DB: client}
-	r.GET("/balances", bh.GetBalances)
-	r.POST("/balance", bh.CreateBalance)
-
 	ch := categoryHandler.CategoryHandler{DB: client}
-	r.GET("/categories", ch.GetCategories)
-	r.POST("/category", ch.CreateCategory)
-
 	th := transactionHandler.TransactionHandler{DB: client}
-	r.GET("/transactions", th.GetTransactions)
-	r.POST("/transaction", th.CreateTransaction)
+
+	r.GET("/", func(ctx *gin.Context) {
+		b, _ := bh.GetBalances(ctx)
+		c, _ := ch.GetCategories(ctx)
+		t, _ := th.GetTransactions(ctx, transactionHandler.GetTransactionsParams{})
+
+		data := MainTemplateData{
+			Balances:     b,
+			Categories:   c,
+			Transactions: t,
+		}
+
+		tmpl.Execute(ctx.Writer, data)
+	})
+
+	r.Static("/static", "./static")
+
+	api := r.Group("/api")
+
+	api.GET("/ping", PingHandler)
+	api.GET("/test", TestHandler)
+
+	api.GET("/balances", bh.GetBalancesHandler)
+	api.POST("/balance", bh.CreateBalance)
+
+	api.GET("/categories", ch.GetCategoriesHandler)
+	api.POST("/category", ch.CreateCategory)
+
+	api.GET("/transactions", th.GetTransactionsHandler)
+	api.POST("/transaction", th.CreateTransaction)
 
 	r.Run()
+}
+
+type MainTemplateData struct {
+	Balances     []*ent.Balance
+	Categories   []*ent.Category
+	Transactions []*ent.Transaction
 }
 
 func TestHandler(ctx *gin.Context) {

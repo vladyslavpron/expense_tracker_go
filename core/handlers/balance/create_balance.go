@@ -1,6 +1,7 @@
 package balanceHandler
 
 import (
+	"fmt"
 	"net/http"
 	"tracker/core/logger"
 
@@ -10,10 +11,12 @@ import (
 func (c *BalanceHandler) CreateBalance(ctx *gin.Context) {
 	var dto CreateBalanceDTO
 	if err := ctx.BindJSON(&dto); err != nil {
-		logger.Err("ERR: CreateBalance func" + string(err.Error()))
+		logger.Err("ERR: CreateBalance func " + string(err.Error()))
 		ctx.JSON(http.StatusBadRequest, "Wrong DTO")
 		return
 	}
+
+	fmt.Println(dto)
 
 	b, err := c.DB.Balance.Create().SetTitle(dto.Title).Save(ctx)
 	if err != nil {

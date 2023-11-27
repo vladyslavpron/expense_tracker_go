@@ -35,6 +35,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "description", Type: field.TypeString, Default: ""},
 		{Name: "amount", Type: field.TypeFloat32},
+		{Name: "created_at", Type: field.TypeTime},
 		{Name: "balance_id", Type: field.TypeInt},
 		{Name: "category_id", Type: field.TypeInt},
 	}
@@ -46,13 +47,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "transactions_balances_transactions",
-				Columns:    []*schema.Column{TransactionsColumns[3]},
+				Columns:    []*schema.Column{TransactionsColumns[4]},
 				RefColumns: []*schema.Column{BalancesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "transactions_categories_transactions",
-				Columns:    []*schema.Column{TransactionsColumns[4]},
+				Columns:    []*schema.Column{TransactionsColumns[5]},
 				RefColumns: []*schema.Column{CategoriesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

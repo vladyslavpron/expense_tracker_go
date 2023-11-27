@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"time"
 	"tracker/ent/balance"
 	"tracker/ent/category"
 	"tracker/ent/schema"
@@ -31,4 +32,8 @@ func init() {
 	transactionDescDescription := transactionFields[0].Descriptor()
 	// transaction.DefaultDescription holds the default value on creation for the description field.
 	transaction.DefaultDescription = transactionDescDescription.Default.(string)
+	// transactionDescCreatedAt is the schema descriptor for created_at field.
+	transactionDescCreatedAt := transactionFields[2].Descriptor()
+	// transaction.DefaultCreatedAt holds the default value on creation for the created_at field.
+	transaction.DefaultCreatedAt = transactionDescCreatedAt.Default.(func() time.Time)
 }
