@@ -8,6 +8,7 @@ import (
 	balanceHandler "tracker/core/handlers/balance"
 	categoryHandler "tracker/core/handlers/category"
 	transactionHandler "tracker/core/handlers/transaction"
+	viewHandler "tracker/core/handlers/view"
 	"tracker/core/logger"
 	"tracker/ent"
 
@@ -26,32 +27,16 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	tmpl := template.Must(template.ParseGlob("./templates/*"))
+	tmpl := template.Must(template.ParseGlob("./core/handlers/view/templates/*"))
 
 	r := gin.Default()
 
 	bh := balanceHandler.BalanceHandler{DB: client}
 	ch := categoryHandler.CategoryHandler{DB: client}
 	th := transactionHandler.TransactionHandler{DB: client}
+	vh := viewHandler.ViewHandler{BalanceHandler: &bh, CategoryHandler: &ch, TransactionHandler: &th, Template: tmpl}
 
-	r.GET("/", func(ctx *gin.Context) {
-		b, _ := bh.GetBalances(ctx)
-		categories, _ := ch.GetCategories(ctx)
-		t, _ := th.GetTransactions(ctx, transactionHandler.GetTransactionsParams{})
-		categoryTitles := make(map[int]string, len(b))
-		for _, category := range categories {
-			categoryTitles[category.ID] = category.Title
-		}
-
-		data := MainTemplateData{
-			Balances:       b,
-			Categories:     categories,
-			Transactions:   t,
-			CategoryTitles: categoryTitles,
-		}
-
-		tmpl.ExecuteTemplate(ctx.Writer, "main", data)
-	})
+	r.GET("/", vh.Main)
 
 	r.Static("/static", "./static")
 
@@ -70,13 +55,6 @@ func main() {
 	api.POST("/transaction", th.CreateTransaction)
 
 	r.Run()
-}
-
-type MainTemplateData struct {
-	Balances       []*ent.Balance
-	Categories     []*ent.Category
-	Transactions   []*ent.Transaction
-	CategoryTitles map[int]string
 }
 
 func TestHandler(ctx *gin.Context) {
