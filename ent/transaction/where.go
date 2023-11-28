@@ -61,7 +61,7 @@ func Description(v string) predicate.Transaction {
 }
 
 // Amount applies equality check predicate on the "amount" field. It's identical to AmountEQ.
-func Amount(v float32) predicate.Transaction {
+func Amount(v float64) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEQ(FieldAmount, v))
 }
 
@@ -146,42 +146,42 @@ func DescriptionContainsFold(v string) predicate.Transaction {
 }
 
 // AmountEQ applies the EQ predicate on the "amount" field.
-func AmountEQ(v float32) predicate.Transaction {
+func AmountEQ(v float64) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEQ(FieldAmount, v))
 }
 
 // AmountNEQ applies the NEQ predicate on the "amount" field.
-func AmountNEQ(v float32) predicate.Transaction {
+func AmountNEQ(v float64) predicate.Transaction {
 	return predicate.Transaction(sql.FieldNEQ(FieldAmount, v))
 }
 
 // AmountIn applies the In predicate on the "amount" field.
-func AmountIn(vs ...float32) predicate.Transaction {
+func AmountIn(vs ...float64) predicate.Transaction {
 	return predicate.Transaction(sql.FieldIn(FieldAmount, vs...))
 }
 
 // AmountNotIn applies the NotIn predicate on the "amount" field.
-func AmountNotIn(vs ...float32) predicate.Transaction {
+func AmountNotIn(vs ...float64) predicate.Transaction {
 	return predicate.Transaction(sql.FieldNotIn(FieldAmount, vs...))
 }
 
 // AmountGT applies the GT predicate on the "amount" field.
-func AmountGT(v float32) predicate.Transaction {
+func AmountGT(v float64) predicate.Transaction {
 	return predicate.Transaction(sql.FieldGT(FieldAmount, v))
 }
 
 // AmountGTE applies the GTE predicate on the "amount" field.
-func AmountGTE(v float32) predicate.Transaction {
+func AmountGTE(v float64) predicate.Transaction {
 	return predicate.Transaction(sql.FieldGTE(FieldAmount, v))
 }
 
 // AmountLT applies the LT predicate on the "amount" field.
-func AmountLT(v float32) predicate.Transaction {
+func AmountLT(v float64) predicate.Transaction {
 	return predicate.Transaction(sql.FieldLT(FieldAmount, v))
 }
 
 // AmountLTE applies the LTE predicate on the "amount" field.
-func AmountLTE(v float32) predicate.Transaction {
+func AmountLTE(v float64) predicate.Transaction {
 	return predicate.Transaction(sql.FieldLTE(FieldAmount, v))
 }
 

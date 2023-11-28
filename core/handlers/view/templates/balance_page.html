@@ -1,28 +1,24 @@
-{{define "main"}} {{template "header" .}} {{$categoryTitles:=.CategoryTitles}}
-<div class="balances-container">
-  <h2 class="balances-header">Balances</h2>
-  <div class="balances-list">
-    {{range .Balances}}
-    <a href="balance/{{.ID}}">
-      <div class="balance">{{.ID}}, {{.Title}}</div>
-    </a>
-    {{end}}
-  </div>
-  {{template "createBalance" .}}
-</div>
-<div class="categories-container">
-  <h2 class="categories-header">Categories</h2>
-  <div class="categories-list">
-    {{range .Categories}}
-    <div class="category">{{.ID}}, {{.Title}}</div>
-    {{end}}
-  </div>
-  {{template "createCategory" .}}
+<!-- prettier-ignore -->
+{{define "balancePage"}} 
+{{$balance := .Balance}} 
+{{$transactions :=.Transactions}} 
+{{$total := .Total}} 
+{{$categoryTitles:=.CategoryTitles}}
+{{template "header"}}
+<div class="balance-page-balance-container">
+  <h2>Balance: {{$balance.Title}}</h2>
+  <h2>Total: ${{$total}}</h2>
+
+  <h3>Total Gain: {{.TotalGain}}</h3>
+  <h3>Total Spent: {{.TotalSpent}}</h3>
+
+  <h3>Average Gain: {{.AverageGain}}</h3>
+  <h3>Average Spent: {{.AverageSpent}}</h3>
 </div>
 <div class="transactions-container">
   <h2 class="transactions-header">Transactions</h2>
   <div class="transactions-list">
-    {{range $i, $transaction := .Transactions}}
+    {{range $i, $transaction := $transactions}}
     <div
       class="transaction-card {{if gt $transaction.Amount 0.0}} transaction-positive {{else}} transaction-negative {{end}}"
     >
@@ -41,4 +37,4 @@
   </div>
   {{template "createTransaction" .}}
 </div>
-{{template "footer" .}} {{end}}
+{{template "footer"}} {{end}}

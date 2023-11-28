@@ -37,7 +37,7 @@ func (tc *TransactionCreate) SetNillableDescription(s *string) *TransactionCreat
 }
 
 // SetAmount sets the "amount" field.
-func (tc *TransactionCreate) SetAmount(f float32) *TransactionCreate {
+func (tc *TransactionCreate) SetAmount(f float64) *TransactionCreate {
 	tc.mutation.SetAmount(f)
 	return tc
 }
@@ -177,7 +177,7 @@ func (tc *TransactionCreate) createSpec() (*Transaction, *sqlgraph.CreateSpec) {
 		_node.Description = value
 	}
 	if value, ok := tc.mutation.Amount(); ok {
-		_spec.SetField(transaction.FieldAmount, field.TypeFloat32, value)
+		_spec.SetField(transaction.FieldAmount, field.TypeFloat64, value)
 		_node.Amount = value
 	}
 	if value, ok := tc.mutation.CreatedAt(); ok {

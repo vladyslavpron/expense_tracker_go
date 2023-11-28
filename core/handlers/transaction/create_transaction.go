@@ -27,7 +27,7 @@ func (c *TransactionHandler) CreateTransaction(ctx *gin.Context) {
 
 type CreateTransactionDTO struct {
 	Description string
-	Amount      float32
+	Amount      float64
 	CategoryId  int
 	BalanceId   int
 }

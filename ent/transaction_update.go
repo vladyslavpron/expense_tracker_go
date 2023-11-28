@@ -45,14 +45,14 @@ func (tu *TransactionUpdate) SetNillableDescription(s *string) *TransactionUpdat
 }
 
 // SetAmount sets the "amount" field.
-func (tu *TransactionUpdate) SetAmount(f float32) *TransactionUpdate {
+func (tu *TransactionUpdate) SetAmount(f float64) *TransactionUpdate {
 	tu.mutation.ResetAmount()
 	tu.mutation.SetAmount(f)
 	return tu
 }
 
 // SetNillableAmount sets the "amount" field if the given value is not nil.
-func (tu *TransactionUpdate) SetNillableAmount(f *float32) *TransactionUpdate {
+func (tu *TransactionUpdate) SetNillableAmount(f *float64) *TransactionUpdate {
 	if f != nil {
 		tu.SetAmount(*f)
 	}
@@ -60,7 +60,7 @@ func (tu *TransactionUpdate) SetNillableAmount(f *float32) *TransactionUpdate {
 }
 
 // AddAmount adds f to the "amount" field.
-func (tu *TransactionUpdate) AddAmount(f float32) *TransactionUpdate {
+func (tu *TransactionUpdate) AddAmount(f float64) *TransactionUpdate {
 	tu.mutation.AddAmount(f)
 	return tu
 }
@@ -188,10 +188,10 @@ func (tu *TransactionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(transaction.FieldDescription, field.TypeString, value)
 	}
 	if value, ok := tu.mutation.Amount(); ok {
-		_spec.SetField(transaction.FieldAmount, field.TypeFloat32, value)
+		_spec.SetField(transaction.FieldAmount, field.TypeFloat64, value)
 	}
 	if value, ok := tu.mutation.AddedAmount(); ok {
-		_spec.AddField(transaction.FieldAmount, field.TypeFloat32, value)
+		_spec.AddField(transaction.FieldAmount, field.TypeFloat64, value)
 	}
 	if value, ok := tu.mutation.CreatedAt(); ok {
 		_spec.SetField(transaction.FieldCreatedAt, field.TypeTime, value)
@@ -289,14 +289,14 @@ func (tuo *TransactionUpdateOne) SetNillableDescription(s *string) *TransactionU
 }
 
 // SetAmount sets the "amount" field.
-func (tuo *TransactionUpdateOne) SetAmount(f float32) *TransactionUpdateOne {
+func (tuo *TransactionUpdateOne) SetAmount(f float64) *TransactionUpdateOne {
 	tuo.mutation.ResetAmount()
 	tuo.mutation.SetAmount(f)
 	return tuo
 }
 
 // SetNillableAmount sets the "amount" field if the given value is not nil.
-func (tuo *TransactionUpdateOne) SetNillableAmount(f *float32) *TransactionUpdateOne {
+func (tuo *TransactionUpdateOne) SetNillableAmount(f *float64) *TransactionUpdateOne {
 	if f != nil {
 		tuo.SetAmount(*f)
 	}
@@ -304,7 +304,7 @@ func (tuo *TransactionUpdateOne) SetNillableAmount(f *float32) *TransactionUpdat
 }
 
 // AddAmount adds f to the "amount" field.
-func (tuo *TransactionUpdateOne) AddAmount(f float32) *TransactionUpdateOne {
+func (tuo *TransactionUpdateOne) AddAmount(f float64) *TransactionUpdateOne {
 	tuo.mutation.AddAmount(f)
 	return tuo
 }
@@ -462,10 +462,10 @@ func (tuo *TransactionUpdateOne) sqlSave(ctx context.Context) (_node *Transactio
 		_spec.SetField(transaction.FieldDescription, field.TypeString, value)
 	}
 	if value, ok := tuo.mutation.Amount(); ok {
-		_spec.SetField(transaction.FieldAmount, field.TypeFloat32, value)
+		_spec.SetField(transaction.FieldAmount, field.TypeFloat64, value)
 	}
 	if value, ok := tuo.mutation.AddedAmount(); ok {
-		_spec.AddField(transaction.FieldAmount, field.TypeFloat32, value)
+		_spec.AddField(transaction.FieldAmount, field.TypeFloat64, value)
 	}
 	if value, ok := tuo.mutation.CreatedAt(); ok {
 		_spec.SetField(transaction.FieldCreatedAt, field.TypeTime, value)

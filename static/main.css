@@ -56,3 +56,7 @@ form button {
 .transaction-negative {
   background-color: red;
 }
+
+.balance-page-balance-container {
+  text-align: center;
+}

@@ -22,7 +22,7 @@ type Transaction struct {
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
 	// Amount holds the value of the "amount" field.
-	Amount float32 `json:"amount,omitempty"`
+	Amount float64 `json:"amount,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// BalanceID holds the value of the "balance_id" field.
@@ -116,7 +116,7 @@ func (t *Transaction) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field amount", values[i])
 			} else if value.Valid {
-				t.Amount = float32(value.Float64)
+				t.Amount = value.Float64
 			}
 		case transaction.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {

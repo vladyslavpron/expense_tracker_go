@@ -37,6 +37,7 @@ func main() {
 	vh := viewHandler.ViewHandler{BalanceHandler: &bh, CategoryHandler: &ch, TransactionHandler: &th, Template: tmpl}
 
 	r.GET("/", vh.Main)
+	r.GET("/balance/:id", vh.Balance)
 
 	r.Static("/static", "./static")
 

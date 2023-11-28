@@ -16,7 +16,7 @@
       const body = { title };
       console.log(body);
 
-      const response = await fetch("api/balance", {
+      const response = await fetch("http://localhost:8080/api/balance", {
         method: "POST",
         body: JSON.stringify(body),
         headers: {

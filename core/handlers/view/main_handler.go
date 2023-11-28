@@ -13,11 +13,12 @@ func (h *ViewHandler) Main(ctx *gin.Context) {
 	categories, _ := h.CategoryHandler.GetCategories(ctx)
 	transactions, _ := h.TransactionHandler.GetTransactions(ctx, transactionHandler.GetTransactionsParams{})
 
-	categoryTitles := make(map[int]string, len(balances))
+	categoryTitles := make(map[int]string, len(categories))
 	for _, category := range categories {
 		categoryTitles[category.ID] = category.Title
 	}
 
+	// TODO: count balance value for each balance
 	data := MainTemplateData{
 		Balances:       balances,
 		Categories:     categories,

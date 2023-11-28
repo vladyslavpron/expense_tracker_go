@@ -34,7 +34,7 @@ var (
 	TransactionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "description", Type: field.TypeString, Default: ""},
-		{Name: "amount", Type: field.TypeFloat32},
+		{Name: "amount", Type: field.TypeFloat64},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "balance_id", Type: field.TypeInt},
 		{Name: "category_id", Type: field.TypeInt},

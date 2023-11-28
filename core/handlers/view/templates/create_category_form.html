@@ -19,7 +19,7 @@
       e.preventDefault();
       const title = document.querySelector("#create-category-title").value;
       const body = { title };
-      const response = await fetch("api/category", {
+      const response = await fetch("http://localhost:8080/api/category", {
         method: "POST",
         body: JSON.stringify(body),
         headers: {

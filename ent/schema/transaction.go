@@ -17,7 +17,7 @@ type Transaction struct {
 func (Transaction) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("description").Default(""),
-		field.Float32("amount"),
+		field.Float("amount"),
 		field.Time("created_at").Default(time.Now),
 		field.Int("balance_id"),
 		field.Int("category_id"),
