@@ -3,17 +3,30 @@
 {{$balance := .Balance}} 
 {{$transactions :=.Transactions}} 
 {{$total := .Total}} 
-{{$categoryTitles:=.CategoryTitles}}
+{{$categoryTitles := .CategoryTitles}}
+{{$spentByCategory := .SpentByCategory}}
 {{template "header"}}
 <div class="balance-page-balance-container">
-  <h2>Balance: {{$balance.Title}}</h2>
-  <h2>Total: ${{$total}}</h2>
+  <div class="balance-page-balance-details-container">
+    <h2>Balance: {{$balance.Title}}</h2>
+    <h2>Total: ${{$total}}</h2>
 
-  <h3>Total Gain: {{.TotalGain}}</h3>
-  <h3>Total Spent: {{.TotalSpent}}</h3>
+    <h3>Total Gain: {{.TotalGain}}</h3>
+    <h3>Total Spent: {{.TotalSpent}}</h3>
 
-  <h3>Average Gain: {{.AverageGain}}</h3>
-  <h3>Average Spent: {{.AverageSpent}}</h3>
+    <h3>Average Gain: {{.AverageGain}}</h3>
+    <h3>Average Spent: {{.AverageSpent}}</h3>
+  </div>
+  <hr />
+  <!-- TODO: Categories card size based on value, i think then need different rows for gains and spendings -->
+  <div class="balance-page-categories-breakdown">
+    {{range $categoryID, $value := $spentByCategory }}
+    <div class="balance-page-categories-breakdown-card">
+      <div>Category: {{index $categoryTitles $categoryID}}</div>
+      <div>Total: {{$value}}</div>
+    </div>
+    {{end}}
+  </div>
 </div>
 <div class="transactions-container">
   <h2 class="transactions-header">Transactions</h2>

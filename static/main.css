@@ -60,3 +60,14 @@ form button {
 .balance-page-balance-container {
   text-align: center;
 }
+
+.balance-page-categories-breakdown {
+  display: flex;
+  flex-direction: row;
+}
+.balance-page-categories-breakdown-card {
+  margin: 5px;
+  padding: 10px;
+  border-radius: 4px;
+  border: 2px solid black;
+}

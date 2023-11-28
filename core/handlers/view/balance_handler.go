@@ -22,6 +22,7 @@ func (h *ViewHandler) Balance(ctx *gin.Context) {
 		categoryTitles[category.ID] = category.Title
 	}
 
+	spentByCategory := make(map[int]float64)
 	positiveSum := 0.0
 	positiveSumCount := 0
 	negativeSum := 0.0
@@ -36,34 +37,37 @@ func (h *ViewHandler) Balance(ctx *gin.Context) {
 			negativeSum += transaction.Amount
 			negativeSumCount++
 		}
+		spentByCategory[transaction.CategoryID] += transaction.Amount
 	}
 
-	// TODO: count balance value for each balance
+	// TODO: count balance value for each category
 	data := BalancePageTemplateData{
-		Balance:        balance,
-		Balances:       []*ent.Balance{balance},
-		Categories:     categories,
-		Transactions:   transactions,
-		CategoryTitles: categoryTitles,
-		Total:          total,
-		TotalGain:      positiveSum,
-		AverageGain:    positiveSum / float64(positiveSumCount),
-		TotalSpent:     negativeSum,
-		AverageSpent:   negativeSum / float64(negativeSumCount),
+		Balance:         balance,
+		Balances:        []*ent.Balance{balance},
+		Categories:      categories,
+		Transactions:    transactions,
+		CategoryTitles:  categoryTitles,
+		Total:           total,
+		TotalGain:       positiveSum,
+		AverageGain:     positiveSum / float64(positiveSumCount),
+		TotalSpent:      negativeSum,
+		AverageSpent:    negativeSum / float64(negativeSumCount),
+		SpentByCategory: spentByCategory,
 	}
 
 	h.Template.ExecuteTemplate(ctx.Writer, "balancePage", data)
 }
 
 type BalancePageTemplateData struct {
-	Balance        *ent.Balance
-	Balances       []*ent.Balance
-	Transactions   []*ent.Transaction
-	Categories     []*ent.Category
-	CategoryTitles map[int]string
-	Total          float64
-	TotalGain      float64
-	TotalSpent     float64
-	AverageGain    float64
-	AverageSpent   float64
+	Balance         *ent.Balance
+	Balances        []*ent.Balance
+	Transactions    []*ent.Transaction
+	Categories      []*ent.Category
+	CategoryTitles  map[int]string
+	Total           float64
+	TotalGain       float64
+	TotalSpent      float64
+	AverageGain     float64
+	AverageSpent    float64
+	SpentByCategory map[int]float64
 }
