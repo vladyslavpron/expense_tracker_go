@@ -4,7 +4,9 @@
   <div class="balances-list">
     {{range .Balances}}
     <a href="balance/{{.ID}}">
-      <div class="balance">{{.ID}}, {{.Title}}</div>
+      <div class="balance-card">
+        <div>{{.Title}}</div>
+      </div>
     </a>
     {{end}}
   </div>
@@ -21,6 +23,7 @@
 </div>
 <div class="transactions-container">
   <h2 class="transactions-header">Transactions</h2>
+  {{template "createTransaction" .}}
   <div class="transactions-list">
     {{range $i, $transaction := .Transactions}}
     <div
@@ -39,6 +42,5 @@
     </div>
     {{end}}
   </div>
-  {{template "createTransaction" .}}
 </div>
 {{template "footer" .}} {{end}}

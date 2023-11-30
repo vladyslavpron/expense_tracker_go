@@ -1,7 +1,3 @@
-* {
-  color: yellowgreen;
-}
-
 #title {
   color: red;
 }
@@ -22,10 +18,26 @@ label {
 .main-container > div {
   flex-basis: 0;
   flex-grow: 1;
+  margin: 5px;
 }
 
 h2 {
   text-align: center;
+}
+
+.balances-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.balance-card {
+  border: 2px solid black;
+  border-radius: 4px;
+  margin: 10px;
+  padding: 5px;
+  flex: 1;
 }
 
 form {
