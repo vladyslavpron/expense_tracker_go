@@ -5,7 +5,8 @@ package ent
 import (
 	"fmt"
 	"strings"
-	"tracker/ent/balance"
+	"tracker/core/balance"
+	entbalance "tracker/ent/balance"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -18,6 +19,10 @@ type Balance struct {
 	ID int `json:"id,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
+	// Currency holds the value of the "currency" field.
+	Currency balance.Currency `json:"currency,omitempty"`
+	// UsdToCurrency holds the value of the "usd_to_currency" field.
+	UsdToCurrency float64 `json:"usd_to_currency,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BalanceQuery when eager-loading is set.
 	Edges        BalanceEdges `json:"-"`
@@ -47,9 +52,11 @@ func (*Balance) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case balance.FieldID:
+		case entbalance.FieldUsdToCurrency:
+			values[i] = new(sql.NullFloat64)
+		case entbalance.FieldID:
 			values[i] = new(sql.NullInt64)
-		case balance.FieldTitle:
+		case entbalance.FieldTitle, entbalance.FieldCurrency:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -66,17 +73,29 @@ func (b *Balance) assignValues(columns []string, values []any) error {
 	}
 	for i := range columns {
 		switch columns[i] {
-		case balance.FieldID:
+		case entbalance.FieldID:
 			value, ok := values[i].(*sql.NullInt64)
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			b.ID = int(value.Int64)
-		case balance.FieldTitle:
+		case entbalance.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
 				b.Title = value.String
+			}
+		case entbalance.FieldCurrency:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field currency", values[i])
+			} else if value.Valid {
+				b.Currency = balance.Currency(value.String)
+			}
+		case entbalance.FieldUsdToCurrency:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field usd_to_currency", values[i])
+			} else if value.Valid {
+				b.UsdToCurrency = value.Float64
 			}
 		default:
 			b.selectValues.Set(columns[i], values[i])
@@ -121,6 +140,12 @@ func (b *Balance) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", b.ID))
 	builder.WriteString("title=")
 	builder.WriteString(b.Title)
+	builder.WriteString(", ")
+	builder.WriteString("currency=")
+	builder.WriteString(fmt.Sprintf("%v", b.Currency))
+	builder.WriteString(", ")
+	builder.WriteString("usd_to_currency=")
+	builder.WriteString(fmt.Sprintf("%v", b.UsdToCurrency))
 	builder.WriteByte(')')
 	return builder.String()
 }

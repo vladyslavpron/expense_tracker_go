@@ -12,6 +12,8 @@ var (
 	BalancesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "title", Type: field.TypeString, Default: ""},
+		{Name: "currency", Type: field.TypeEnum, Enums: []string{"USD", "EUR", "UAH"}, Default: "UAH"},
+		{Name: "usd_to_currency", Type: field.TypeFloat64, Default: 1},
 	}
 	// BalancesTable holds the schema information for the "balances" table.
 	BalancesTable = &schema.Table{

@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"tracker/ent/balance"
+	entbalance "tracker/ent/balance"
 	"tracker/ent/category"
 	"tracker/ent/transaction"
 
@@ -192,7 +192,7 @@ func (tc *TransactionCreate) createSpec() (*Transaction, *sqlgraph.CreateSpec) {
 			Columns: []string{transaction.BalanceColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balance.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(entbalance.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

@@ -8,7 +8,8 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	"tracker/ent/balance"
+	"tracker/core/balance"
+	entbalance "tracker/ent/balance"
 	"tracker/ent/category"
 	"tracker/ent/predicate"
 	"tracker/ent/transaction"
@@ -39,6 +40,9 @@ type BalanceMutation struct {
 	typ                 string
 	id                  *int
 	title               *string
+	currency            *balance.Currency
+	usd_to_currency     *float64
+	addusd_to_currency  *float64
 	clearedFields       map[string]struct{}
 	transactions        map[int]struct{}
 	removedtransactions map[int]struct{}
@@ -182,6 +186,98 @@ func (m *BalanceMutation) ResetTitle() {
 	m.title = nil
 }
 
+// SetCurrency sets the "currency" field.
+func (m *BalanceMutation) SetCurrency(b balance.Currency) {
+	m.currency = &b
+}
+
+// Currency returns the value of the "currency" field in the mutation.
+func (m *BalanceMutation) Currency() (r balance.Currency, exists bool) {
+	v := m.currency
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCurrency returns the old "currency" field's value of the Balance entity.
+// If the Balance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BalanceMutation) OldCurrency(ctx context.Context) (v balance.Currency, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCurrency is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCurrency requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCurrency: %w", err)
+	}
+	return oldValue.Currency, nil
+}
+
+// ResetCurrency resets all changes to the "currency" field.
+func (m *BalanceMutation) ResetCurrency() {
+	m.currency = nil
+}
+
+// SetUsdToCurrency sets the "usd_to_currency" field.
+func (m *BalanceMutation) SetUsdToCurrency(f float64) {
+	m.usd_to_currency = &f
+	m.addusd_to_currency = nil
+}
+
+// UsdToCurrency returns the value of the "usd_to_currency" field in the mutation.
+func (m *BalanceMutation) UsdToCurrency() (r float64, exists bool) {
+	v := m.usd_to_currency
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUsdToCurrency returns the old "usd_to_currency" field's value of the Balance entity.
+// If the Balance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BalanceMutation) OldUsdToCurrency(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUsdToCurrency is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUsdToCurrency requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUsdToCurrency: %w", err)
+	}
+	return oldValue.UsdToCurrency, nil
+}
+
+// AddUsdToCurrency adds f to the "usd_to_currency" field.
+func (m *BalanceMutation) AddUsdToCurrency(f float64) {
+	if m.addusd_to_currency != nil {
+		*m.addusd_to_currency += f
+	} else {
+		m.addusd_to_currency = &f
+	}
+}
+
+// AddedUsdToCurrency returns the value that was added to the "usd_to_currency" field in this mutation.
+func (m *BalanceMutation) AddedUsdToCurrency() (r float64, exists bool) {
+	v := m.addusd_to_currency
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetUsdToCurrency resets all changes to the "usd_to_currency" field.
+func (m *BalanceMutation) ResetUsdToCurrency() {
+	m.usd_to_currency = nil
+	m.addusd_to_currency = nil
+}
+
 // AddTransactionIDs adds the "transactions" edge to the Transaction entity by ids.
 func (m *BalanceMutation) AddTransactionIDs(ids ...int) {
 	if m.transactions == nil {
@@ -270,9 +366,15 @@ func (m *BalanceMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BalanceMutation) Fields() []string {
-	fields := make([]string, 0, 1)
+	fields := make([]string, 0, 3)
 	if m.title != nil {
-		fields = append(fields, balance.FieldTitle)
+		fields = append(fields, entbalance.FieldTitle)
+	}
+	if m.currency != nil {
+		fields = append(fields, entbalance.FieldCurrency)
+	}
+	if m.usd_to_currency != nil {
+		fields = append(fields, entbalance.FieldUsdToCurrency)
 	}
 	return fields
 }
@@ -282,8 +384,12 @@ func (m *BalanceMutation) Fields() []string {
 // schema.
 func (m *BalanceMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case balance.FieldTitle:
+	case entbalance.FieldTitle:
 		return m.Title()
+	case entbalance.FieldCurrency:
+		return m.Currency()
+	case entbalance.FieldUsdToCurrency:
+		return m.UsdToCurrency()
 	}
 	return nil, false
 }
@@ -293,8 +399,12 @@ func (m *BalanceMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *BalanceMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case balance.FieldTitle:
+	case entbalance.FieldTitle:
 		return m.OldTitle(ctx)
+	case entbalance.FieldCurrency:
+		return m.OldCurrency(ctx)
+	case entbalance.FieldUsdToCurrency:
+		return m.OldUsdToCurrency(ctx)
 	}
 	return nil, fmt.Errorf("unknown Balance field %s", name)
 }
@@ -304,12 +414,26 @@ func (m *BalanceMutation) OldField(ctx context.Context, name string) (ent.Value,
 // type.
 func (m *BalanceMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case balance.FieldTitle:
+	case entbalance.FieldTitle:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTitle(v)
+		return nil
+	case entbalance.FieldCurrency:
+		v, ok := value.(balance.Currency)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCurrency(v)
+		return nil
+	case entbalance.FieldUsdToCurrency:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUsdToCurrency(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Balance field %s", name)
@@ -318,13 +442,21 @@ func (m *BalanceMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *BalanceMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addusd_to_currency != nil {
+		fields = append(fields, entbalance.FieldUsdToCurrency)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *BalanceMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case entbalance.FieldUsdToCurrency:
+		return m.AddedUsdToCurrency()
+	}
 	return nil, false
 }
 
@@ -333,6 +465,13 @@ func (m *BalanceMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *BalanceMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case entbalance.FieldUsdToCurrency:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUsdToCurrency(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Balance numeric field %s", name)
 }
@@ -360,8 +499,14 @@ func (m *BalanceMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *BalanceMutation) ResetField(name string) error {
 	switch name {
-	case balance.FieldTitle:
+	case entbalance.FieldTitle:
 		m.ResetTitle()
+		return nil
+	case entbalance.FieldCurrency:
+		m.ResetCurrency()
+		return nil
+	case entbalance.FieldUsdToCurrency:
+		m.ResetUsdToCurrency()
 		return nil
 	}
 	return fmt.Errorf("unknown Balance field %s", name)
@@ -371,7 +516,7 @@ func (m *BalanceMutation) ResetField(name string) error {
 func (m *BalanceMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
 	if m.transactions != nil {
-		edges = append(edges, balance.EdgeTransactions)
+		edges = append(edges, entbalance.EdgeTransactions)
 	}
 	return edges
 }
@@ -380,7 +525,7 @@ func (m *BalanceMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *BalanceMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case balance.EdgeTransactions:
+	case entbalance.EdgeTransactions:
 		ids := make([]ent.Value, 0, len(m.transactions))
 		for id := range m.transactions {
 			ids = append(ids, id)
@@ -394,7 +539,7 @@ func (m *BalanceMutation) AddedIDs(name string) []ent.Value {
 func (m *BalanceMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
 	if m.removedtransactions != nil {
-		edges = append(edges, balance.EdgeTransactions)
+		edges = append(edges, entbalance.EdgeTransactions)
 	}
 	return edges
 }
@@ -403,7 +548,7 @@ func (m *BalanceMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *BalanceMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case balance.EdgeTransactions:
+	case entbalance.EdgeTransactions:
 		ids := make([]ent.Value, 0, len(m.removedtransactions))
 		for id := range m.removedtransactions {
 			ids = append(ids, id)
@@ -417,7 +562,7 @@ func (m *BalanceMutation) RemovedIDs(name string) []ent.Value {
 func (m *BalanceMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
 	if m.clearedtransactions {
-		edges = append(edges, balance.EdgeTransactions)
+		edges = append(edges, entbalance.EdgeTransactions)
 	}
 	return edges
 }
@@ -426,7 +571,7 @@ func (m *BalanceMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *BalanceMutation) EdgeCleared(name string) bool {
 	switch name {
-	case balance.EdgeTransactions:
+	case entbalance.EdgeTransactions:
 		return m.clearedtransactions
 	}
 	return false
@@ -444,7 +589,7 @@ func (m *BalanceMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *BalanceMutation) ResetEdge(name string) error {
 	switch name {
-	case balance.EdgeTransactions:
+	case entbalance.EdgeTransactions:
 		m.ResetTransactions()
 		return nil
 	}

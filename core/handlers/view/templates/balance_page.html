@@ -10,6 +10,9 @@
   <div class="balance-page-balance-details-container">
     <h2>Balance: {{$balance.Title}}</h2>
     <h2>Total: ${{$total}}</h2>
+    <div>
+      Exchange rate: {{$balance.UsdToCurrency}}{{$balance.Currency}} For 1USD
+    </div>
 
     <h3>Total Gain: {{.TotalGain}}</h3>
     <h3>Total Spent: {{.TotalSpent}}</h3>

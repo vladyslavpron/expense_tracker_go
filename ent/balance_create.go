@@ -6,7 +6,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"tracker/ent/balance"
+	"tracker/core/balance"
+	entbalance "tracker/ent/balance"
 	"tracker/ent/transaction"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -30,6 +31,34 @@ func (bc *BalanceCreate) SetTitle(s string) *BalanceCreate {
 func (bc *BalanceCreate) SetNillableTitle(s *string) *BalanceCreate {
 	if s != nil {
 		bc.SetTitle(*s)
+	}
+	return bc
+}
+
+// SetCurrency sets the "currency" field.
+func (bc *BalanceCreate) SetCurrency(b balance.Currency) *BalanceCreate {
+	bc.mutation.SetCurrency(b)
+	return bc
+}
+
+// SetNillableCurrency sets the "currency" field if the given value is not nil.
+func (bc *BalanceCreate) SetNillableCurrency(b *balance.Currency) *BalanceCreate {
+	if b != nil {
+		bc.SetCurrency(*b)
+	}
+	return bc
+}
+
+// SetUsdToCurrency sets the "usd_to_currency" field.
+func (bc *BalanceCreate) SetUsdToCurrency(f float64) *BalanceCreate {
+	bc.mutation.SetUsdToCurrency(f)
+	return bc
+}
+
+// SetNillableUsdToCurrency sets the "usd_to_currency" field if the given value is not nil.
+func (bc *BalanceCreate) SetNillableUsdToCurrency(f *float64) *BalanceCreate {
+	if f != nil {
+		bc.SetUsdToCurrency(*f)
 	}
 	return bc
 }
@@ -85,8 +114,16 @@ func (bc *BalanceCreate) ExecX(ctx context.Context) {
 // defaults sets the default values of the builder before save.
 func (bc *BalanceCreate) defaults() {
 	if _, ok := bc.mutation.Title(); !ok {
-		v := balance.DefaultTitle
+		v := entbalance.DefaultTitle
 		bc.mutation.SetTitle(v)
+	}
+	if _, ok := bc.mutation.Currency(); !ok {
+		v := entbalance.DefaultCurrency
+		bc.mutation.SetCurrency(v)
+	}
+	if _, ok := bc.mutation.UsdToCurrency(); !ok {
+		v := entbalance.DefaultUsdToCurrency
+		bc.mutation.SetUsdToCurrency(v)
 	}
 }
 
@@ -94,6 +131,17 @@ func (bc *BalanceCreate) defaults() {
 func (bc *BalanceCreate) check() error {
 	if _, ok := bc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Balance.title"`)}
+	}
+	if _, ok := bc.mutation.Currency(); !ok {
+		return &ValidationError{Name: "currency", err: errors.New(`ent: missing required field "Balance.currency"`)}
+	}
+	if v, ok := bc.mutation.Currency(); ok {
+		if err := entbalance.CurrencyValidator(v); err != nil {
+			return &ValidationError{Name: "currency", err: fmt.Errorf(`ent: validator failed for field "Balance.currency": %w`, err)}
+		}
+	}
+	if _, ok := bc.mutation.UsdToCurrency(); !ok {
+		return &ValidationError{Name: "usd_to_currency", err: errors.New(`ent: missing required field "Balance.usd_to_currency"`)}
 	}
 	return nil
 }
@@ -119,18 +167,26 @@ func (bc *BalanceCreate) sqlSave(ctx context.Context) (*Balance, error) {
 func (bc *BalanceCreate) createSpec() (*Balance, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Balance{config: bc.config}
-		_spec = sqlgraph.NewCreateSpec(balance.Table, sqlgraph.NewFieldSpec(balance.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(entbalance.Table, sqlgraph.NewFieldSpec(entbalance.FieldID, field.TypeInt))
 	)
 	if value, ok := bc.mutation.Title(); ok {
-		_spec.SetField(balance.FieldTitle, field.TypeString, value)
+		_spec.SetField(entbalance.FieldTitle, field.TypeString, value)
 		_node.Title = value
+	}
+	if value, ok := bc.mutation.Currency(); ok {
+		_spec.SetField(entbalance.FieldCurrency, field.TypeEnum, value)
+		_node.Currency = value
+	}
+	if value, ok := bc.mutation.UsdToCurrency(); ok {
+		_spec.SetField(entbalance.FieldUsdToCurrency, field.TypeFloat64, value)
+		_node.UsdToCurrency = value
 	}
 	if nodes := bc.mutation.TransactionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   balance.TransactionsTable,
-			Columns: []string{balance.TransactionsColumn},
+			Table:   entbalance.TransactionsTable,
+			Columns: []string{entbalance.TransactionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),

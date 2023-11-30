@@ -1,4 +1,5 @@
 {{define "main"}} {{template "header" .}} {{$categoryTitles:=.CategoryTitles}}
+<!-- TODO: calculate value of each balance, also calculate total value across balances, for each currency, but also convert value across balances to display total value in specific currency -->
 <div class="balances-container">
   <h2 class="balances-header">Balances</h2>
   <div class="balances-list">
@@ -6,6 +7,7 @@
     <a href="balance/{{.ID}}">
       <div class="balance-card">
         <div>{{.Title}}</div>
+        <div>Currency: {{.Currency}}</div>
       </div>
     </a>
     {{end}}

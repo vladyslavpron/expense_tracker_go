@@ -33,7 +33,7 @@ const (
 	// BalanceTable is the table that holds the balance relation/edge.
 	BalanceTable = "transactions"
 	// BalanceInverseTable is the table name for the Balance entity.
-	// It exists in this package in order to avoid circular dependency with the "balance" package.
+	// It exists in this package in order to avoid circular dependency with the "entbalance" package.
 	BalanceInverseTable = "balances"
 	// BalanceColumn is the table column denoting the balance relation/edge.
 	BalanceColumn = "balance_id"

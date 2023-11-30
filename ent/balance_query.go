@@ -7,7 +7,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"math"
-	"tracker/ent/balance"
+	entbalance "tracker/ent/balance"
 	"tracker/ent/predicate"
 	"tracker/ent/transaction"
 
@@ -20,7 +20,7 @@ import (
 type BalanceQuery struct {
 	config
 	ctx              *QueryContext
-	order            []balance.OrderOption
+	order            []entbalance.OrderOption
 	inters           []Interceptor
 	predicates       []predicate.Balance
 	withTransactions *TransactionQuery
@@ -55,7 +55,7 @@ func (bq *BalanceQuery) Unique(unique bool) *BalanceQuery {
 }
 
 // Order specifies how the records should be ordered.
-func (bq *BalanceQuery) Order(o ...balance.OrderOption) *BalanceQuery {
+func (bq *BalanceQuery) Order(o ...entbalance.OrderOption) *BalanceQuery {
 	bq.order = append(bq.order, o...)
 	return bq
 }
@@ -72,9 +72,9 @@ func (bq *BalanceQuery) QueryTransactions() *TransactionQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(balance.Table, balance.FieldID, selector),
+			sqlgraph.From(entbalance.Table, entbalance.FieldID, selector),
 			sqlgraph.To(transaction.Table, transaction.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, balance.TransactionsTable, balance.TransactionsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, entbalance.TransactionsTable, entbalance.TransactionsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(bq.driver.Dialect(), step)
 		return fromU, nil
@@ -90,7 +90,7 @@ func (bq *BalanceQuery) First(ctx context.Context) (*Balance, error) {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{balance.Label}
+		return nil, &NotFoundError{entbalance.Label}
 	}
 	return nodes[0], nil
 }
@@ -112,7 +112,7 @@ func (bq *BalanceQuery) FirstID(ctx context.Context) (id int, err error) {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{balance.Label}
+		err = &NotFoundError{entbalance.Label}
 		return
 	}
 	return ids[0], nil
@@ -139,9 +139,9 @@ func (bq *BalanceQuery) Only(ctx context.Context) (*Balance, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{balance.Label}
+		return nil, &NotFoundError{entbalance.Label}
 	default:
-		return nil, &NotSingularError{balance.Label}
+		return nil, &NotSingularError{entbalance.Label}
 	}
 }
 
@@ -166,9 +166,9 @@ func (bq *BalanceQuery) OnlyID(ctx context.Context) (id int, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{balance.Label}
+		err = &NotFoundError{entbalance.Label}
 	default:
-		err = &NotSingularError{balance.Label}
+		err = &NotSingularError{entbalance.Label}
 	}
 	return
 }
@@ -207,7 +207,7 @@ func (bq *BalanceQuery) IDs(ctx context.Context) (ids []int, err error) {
 		bq.Unique(true)
 	}
 	ctx = setContextOp(ctx, bq.ctx, "IDs")
-	if err = bq.Select(balance.FieldID).Scan(ctx, &ids); err != nil {
+	if err = bq.Select(entbalance.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
@@ -271,7 +271,7 @@ func (bq *BalanceQuery) Clone() *BalanceQuery {
 	return &BalanceQuery{
 		config:           bq.config,
 		ctx:              bq.ctx.Clone(),
-		order:            append([]balance.OrderOption{}, bq.order...),
+		order:            append([]entbalance.OrderOption{}, bq.order...),
 		inters:           append([]Interceptor{}, bq.inters...),
 		predicates:       append([]predicate.Balance{}, bq.predicates...),
 		withTransactions: bq.withTransactions.Clone(),
@@ -303,14 +303,14 @@ func (bq *BalanceQuery) WithTransactions(opts ...func(*TransactionQuery)) *Balan
 //	}
 //
 //	client.Balance.Query().
-//		GroupBy(balance.FieldTitle).
+//		GroupBy(entbalance.FieldTitle).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (bq *BalanceQuery) GroupBy(field string, fields ...string) *BalanceGroupBy {
 	bq.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &BalanceGroupBy{build: bq}
 	grbuild.flds = &bq.ctx.Fields
-	grbuild.label = balance.Label
+	grbuild.label = entbalance.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -325,12 +325,12 @@ func (bq *BalanceQuery) GroupBy(field string, fields ...string) *BalanceGroupBy 
 //	}
 //
 //	client.Balance.Query().
-//		Select(balance.FieldTitle).
+//		Select(entbalance.FieldTitle).
 //		Scan(ctx, &v)
 func (bq *BalanceQuery) Select(fields ...string) *BalanceSelect {
 	bq.ctx.Fields = append(bq.ctx.Fields, fields...)
 	sbuild := &BalanceSelect{BalanceQuery: bq}
-	sbuild.label = balance.Label
+	sbuild.label = entbalance.Label
 	sbuild.flds, sbuild.scan = &bq.ctx.Fields, sbuild.Scan
 	return sbuild
 }
@@ -352,7 +352,7 @@ func (bq *BalanceQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range bq.ctx.Fields {
-		if !balance.ValidColumn(f) {
+		if !entbalance.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -416,7 +416,7 @@ func (bq *BalanceQuery) loadTransactions(ctx context.Context, query *Transaction
 		query.ctx.AppendFieldOnce(transaction.FieldBalanceID)
 	}
 	query.Where(predicate.Transaction(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(balance.TransactionsColumn), fks...))
+		s.Where(sql.InValues(s.C(entbalance.TransactionsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -443,7 +443,7 @@ func (bq *BalanceQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (bq *BalanceQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(balance.Table, balance.Columns, sqlgraph.NewFieldSpec(balance.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(entbalance.Table, entbalance.Columns, sqlgraph.NewFieldSpec(entbalance.FieldID, field.TypeInt))
 	_spec.From = bq.sql
 	if unique := bq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -452,9 +452,9 @@ func (bq *BalanceQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := bq.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, balance.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, entbalance.FieldID)
 		for i := range fields {
-			if fields[i] != balance.FieldID {
+			if fields[i] != entbalance.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
@@ -484,10 +484,10 @@ func (bq *BalanceQuery) querySpec() *sqlgraph.QuerySpec {
 
 func (bq *BalanceQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(bq.driver.Dialect())
-	t1 := builder.Table(balance.Table)
+	t1 := builder.Table(entbalance.Table)
 	columns := bq.ctx.Fields
 	if len(columns) == 0 {
-		columns = balance.Columns
+		columns = entbalance.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if bq.sql != nil {

@@ -6,7 +6,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"tracker/ent/balance"
+	"tracker/core/balance"
+	entbalance "tracker/ent/balance"
 	"tracker/ent/predicate"
 	"tracker/ent/transaction"
 
@@ -39,6 +40,41 @@ func (bu *BalanceUpdate) SetNillableTitle(s *string) *BalanceUpdate {
 	if s != nil {
 		bu.SetTitle(*s)
 	}
+	return bu
+}
+
+// SetCurrency sets the "currency" field.
+func (bu *BalanceUpdate) SetCurrency(b balance.Currency) *BalanceUpdate {
+	bu.mutation.SetCurrency(b)
+	return bu
+}
+
+// SetNillableCurrency sets the "currency" field if the given value is not nil.
+func (bu *BalanceUpdate) SetNillableCurrency(b *balance.Currency) *BalanceUpdate {
+	if b != nil {
+		bu.SetCurrency(*b)
+	}
+	return bu
+}
+
+// SetUsdToCurrency sets the "usd_to_currency" field.
+func (bu *BalanceUpdate) SetUsdToCurrency(f float64) *BalanceUpdate {
+	bu.mutation.ResetUsdToCurrency()
+	bu.mutation.SetUsdToCurrency(f)
+	return bu
+}
+
+// SetNillableUsdToCurrency sets the "usd_to_currency" field if the given value is not nil.
+func (bu *BalanceUpdate) SetNillableUsdToCurrency(f *float64) *BalanceUpdate {
+	if f != nil {
+		bu.SetUsdToCurrency(*f)
+	}
+	return bu
+}
+
+// AddUsdToCurrency adds f to the "usd_to_currency" field.
+func (bu *BalanceUpdate) AddUsdToCurrency(f float64) *BalanceUpdate {
+	bu.mutation.AddUsdToCurrency(f)
 	return bu
 }
 
@@ -110,8 +146,21 @@ func (bu *BalanceUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (bu *BalanceUpdate) check() error {
+	if v, ok := bu.mutation.Currency(); ok {
+		if err := entbalance.CurrencyValidator(v); err != nil {
+			return &ValidationError{Name: "currency", err: fmt.Errorf(`ent: validator failed for field "Balance.currency": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (bu *BalanceUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(balance.Table, balance.Columns, sqlgraph.NewFieldSpec(balance.FieldID, field.TypeInt))
+	if err := bu.check(); err != nil {
+		return n, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(entbalance.Table, entbalance.Columns, sqlgraph.NewFieldSpec(entbalance.FieldID, field.TypeInt))
 	if ps := bu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -120,14 +169,23 @@ func (bu *BalanceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 	}
 	if value, ok := bu.mutation.Title(); ok {
-		_spec.SetField(balance.FieldTitle, field.TypeString, value)
+		_spec.SetField(entbalance.FieldTitle, field.TypeString, value)
+	}
+	if value, ok := bu.mutation.Currency(); ok {
+		_spec.SetField(entbalance.FieldCurrency, field.TypeEnum, value)
+	}
+	if value, ok := bu.mutation.UsdToCurrency(); ok {
+		_spec.SetField(entbalance.FieldUsdToCurrency, field.TypeFloat64, value)
+	}
+	if value, ok := bu.mutation.AddedUsdToCurrency(); ok {
+		_spec.AddField(entbalance.FieldUsdToCurrency, field.TypeFloat64, value)
 	}
 	if bu.mutation.TransactionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   balance.TransactionsTable,
-			Columns: []string{balance.TransactionsColumn},
+			Table:   entbalance.TransactionsTable,
+			Columns: []string{entbalance.TransactionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
@@ -139,8 +197,8 @@ func (bu *BalanceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   balance.TransactionsTable,
-			Columns: []string{balance.TransactionsColumn},
+			Table:   entbalance.TransactionsTable,
+			Columns: []string{entbalance.TransactionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
@@ -155,8 +213,8 @@ func (bu *BalanceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   balance.TransactionsTable,
-			Columns: []string{balance.TransactionsColumn},
+			Table:   entbalance.TransactionsTable,
+			Columns: []string{entbalance.TransactionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
@@ -169,7 +227,7 @@ func (bu *BalanceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, bu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{balance.Label}
+			err = &NotFoundError{entbalance.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -198,6 +256,41 @@ func (buo *BalanceUpdateOne) SetNillableTitle(s *string) *BalanceUpdateOne {
 	if s != nil {
 		buo.SetTitle(*s)
 	}
+	return buo
+}
+
+// SetCurrency sets the "currency" field.
+func (buo *BalanceUpdateOne) SetCurrency(b balance.Currency) *BalanceUpdateOne {
+	buo.mutation.SetCurrency(b)
+	return buo
+}
+
+// SetNillableCurrency sets the "currency" field if the given value is not nil.
+func (buo *BalanceUpdateOne) SetNillableCurrency(b *balance.Currency) *BalanceUpdateOne {
+	if b != nil {
+		buo.SetCurrency(*b)
+	}
+	return buo
+}
+
+// SetUsdToCurrency sets the "usd_to_currency" field.
+func (buo *BalanceUpdateOne) SetUsdToCurrency(f float64) *BalanceUpdateOne {
+	buo.mutation.ResetUsdToCurrency()
+	buo.mutation.SetUsdToCurrency(f)
+	return buo
+}
+
+// SetNillableUsdToCurrency sets the "usd_to_currency" field if the given value is not nil.
+func (buo *BalanceUpdateOne) SetNillableUsdToCurrency(f *float64) *BalanceUpdateOne {
+	if f != nil {
+		buo.SetUsdToCurrency(*f)
+	}
+	return buo
+}
+
+// AddUsdToCurrency adds f to the "usd_to_currency" field.
+func (buo *BalanceUpdateOne) AddUsdToCurrency(f float64) *BalanceUpdateOne {
+	buo.mutation.AddUsdToCurrency(f)
 	return buo
 }
 
@@ -282,8 +375,21 @@ func (buo *BalanceUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (buo *BalanceUpdateOne) check() error {
+	if v, ok := buo.mutation.Currency(); ok {
+		if err := entbalance.CurrencyValidator(v); err != nil {
+			return &ValidationError{Name: "currency", err: fmt.Errorf(`ent: validator failed for field "Balance.currency": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (buo *BalanceUpdateOne) sqlSave(ctx context.Context) (_node *Balance, err error) {
-	_spec := sqlgraph.NewUpdateSpec(balance.Table, balance.Columns, sqlgraph.NewFieldSpec(balance.FieldID, field.TypeInt))
+	if err := buo.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(entbalance.Table, entbalance.Columns, sqlgraph.NewFieldSpec(entbalance.FieldID, field.TypeInt))
 	id, ok := buo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Balance.id" for update`)}
@@ -291,12 +397,12 @@ func (buo *BalanceUpdateOne) sqlSave(ctx context.Context) (_node *Balance, err e
 	_spec.Node.ID.Value = id
 	if fields := buo.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, balance.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, entbalance.FieldID)
 		for _, f := range fields {
-			if !balance.ValidColumn(f) {
+			if !entbalance.ValidColumn(f) {
 				return nil, &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 			}
-			if f != balance.FieldID {
+			if f != entbalance.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, f)
 			}
 		}
@@ -309,14 +415,23 @@ func (buo *BalanceUpdateOne) sqlSave(ctx context.Context) (_node *Balance, err e
 		}
 	}
 	if value, ok := buo.mutation.Title(); ok {
-		_spec.SetField(balance.FieldTitle, field.TypeString, value)
+		_spec.SetField(entbalance.FieldTitle, field.TypeString, value)
+	}
+	if value, ok := buo.mutation.Currency(); ok {
+		_spec.SetField(entbalance.FieldCurrency, field.TypeEnum, value)
+	}
+	if value, ok := buo.mutation.UsdToCurrency(); ok {
+		_spec.SetField(entbalance.FieldUsdToCurrency, field.TypeFloat64, value)
+	}
+	if value, ok := buo.mutation.AddedUsdToCurrency(); ok {
+		_spec.AddField(entbalance.FieldUsdToCurrency, field.TypeFloat64, value)
 	}
 	if buo.mutation.TransactionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   balance.TransactionsTable,
-			Columns: []string{balance.TransactionsColumn},
+			Table:   entbalance.TransactionsTable,
+			Columns: []string{entbalance.TransactionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
@@ -328,8 +443,8 @@ func (buo *BalanceUpdateOne) sqlSave(ctx context.Context) (_node *Balance, err e
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   balance.TransactionsTable,
-			Columns: []string{balance.TransactionsColumn},
+			Table:   entbalance.TransactionsTable,
+			Columns: []string{entbalance.TransactionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
@@ -344,8 +459,8 @@ func (buo *BalanceUpdateOne) sqlSave(ctx context.Context) (_node *Balance, err e
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   balance.TransactionsTable,
-			Columns: []string{balance.TransactionsColumn},
+			Table:   entbalance.TransactionsTable,
+			Columns: []string{entbalance.TransactionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
@@ -361,7 +476,7 @@ func (buo *BalanceUpdateOne) sqlSave(ctx context.Context) (_node *Balance, err e
 	_spec.ScanValues = _node.scanValues
 	if err = sqlgraph.UpdateNode(ctx, buo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{balance.Label}
+			err = &NotFoundError{entbalance.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
