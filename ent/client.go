@@ -11,7 +11,7 @@ import (
 
 	"tracker/ent/migrate"
 
-	entbalance "tracker/ent/balance"
+	"tracker/ent/balance"
 	"tracker/ent/category"
 	"tracker/ent/transaction"
 	"tracker/ent/user"
@@ -239,13 +239,13 @@ func NewBalanceClient(c config) *BalanceClient {
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `entbalance.Hooks(f(g(h())))`.
+// A call to `Use(f, g, h)` equals to `balance.Hooks(f(g(h())))`.
 func (c *BalanceClient) Use(hooks ...Hook) {
 	c.hooks.Balance = append(c.hooks.Balance, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `entbalance.Intercept(f(g(h())))`.
+// A call to `Intercept(f, g, h)` equals to `balance.Intercept(f(g(h())))`.
 func (c *BalanceClient) Intercept(interceptors ...Interceptor) {
 	c.inters.Balance = append(c.inters.Balance, interceptors...)
 }
@@ -307,7 +307,7 @@ func (c *BalanceClient) DeleteOne(b *Balance) *BalanceDeleteOne {
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
 func (c *BalanceClient) DeleteOneID(id int) *BalanceDeleteOne {
-	builder := c.Delete().Where(entbalance.ID(id))
+	builder := c.Delete().Where(balance.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
 	return &BalanceDeleteOne{builder}
@@ -324,7 +324,7 @@ func (c *BalanceClient) Query() *BalanceQuery {
 
 // Get returns a Balance entity by its id.
 func (c *BalanceClient) Get(ctx context.Context, id int) (*Balance, error) {
-	return c.Query().Where(entbalance.ID(id)).Only(ctx)
+	return c.Query().Where(balance.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
@@ -342,9 +342,9 @@ func (c *BalanceClient) QueryTransactions(b *Balance) *TransactionQuery {
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := b.ID
 		step := sqlgraph.NewStep(
-			sqlgraph.From(entbalance.Table, entbalance.FieldID, id),
+			sqlgraph.From(balance.Table, balance.FieldID, id),
 			sqlgraph.To(transaction.Table, transaction.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, entbalance.TransactionsTable, entbalance.TransactionsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, balance.TransactionsTable, balance.TransactionsColumn),
 		)
 		fromV = sqlgraph.Neighbors(b.driver.Dialect(), step)
 		return fromV, nil
@@ -641,7 +641,7 @@ func (c *TransactionClient) QueryBalance(t *Transaction) *BalanceQuery {
 		id := t.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(transaction.Table, transaction.FieldID, id),
-			sqlgraph.To(entbalance.Table, entbalance.FieldID),
+			sqlgraph.To(balance.Table, balance.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, transaction.BalanceTable, transaction.BalanceColumn),
 		)
 		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)

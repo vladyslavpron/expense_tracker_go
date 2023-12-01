@@ -4,7 +4,7 @@ package ent
 
 import (
 	"time"
-	entbalance "tracker/ent/balance"
+	"tracker/ent/balance"
 	"tracker/ent/schema"
 	"tracker/ent/transaction"
 )
@@ -13,16 +13,16 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	entbalanceFields := schema.Balance{}.Fields()
-	_ = entbalanceFields
-	// entbalanceDescTitle is the schema descriptor for title field.
-	entbalanceDescTitle := entbalanceFields[0].Descriptor()
-	// entbalance.DefaultTitle holds the default value on creation for the title field.
-	entbalance.DefaultTitle = entbalanceDescTitle.Default.(string)
-	// entbalanceDescUsdToCurrency is the schema descriptor for usd_to_currency field.
-	entbalanceDescUsdToCurrency := entbalanceFields[2].Descriptor()
-	// entbalance.DefaultUsdToCurrency holds the default value on creation for the usd_to_currency field.
-	entbalance.DefaultUsdToCurrency = entbalanceDescUsdToCurrency.Default.(float64)
+	balanceFields := schema.Balance{}.Fields()
+	_ = balanceFields
+	// balanceDescTitle is the schema descriptor for title field.
+	balanceDescTitle := balanceFields[0].Descriptor()
+	// balance.DefaultTitle holds the default value on creation for the title field.
+	balance.DefaultTitle = balanceDescTitle.Default.(string)
+	// balanceDescUsdToCurrency is the schema descriptor for usd_to_currency field.
+	balanceDescUsdToCurrency := balanceFields[2].Descriptor()
+	// balance.DefaultUsdToCurrency holds the default value on creation for the usd_to_currency field.
+	balance.DefaultUsdToCurrency = balanceDescUsdToCurrency.Default.(float64)
 	transactionFields := schema.Transaction{}.Fields()
 	_ = transactionFields
 	// transactionDescDescription is the schema descriptor for description field.

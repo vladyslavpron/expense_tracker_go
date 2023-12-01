@@ -21,6 +21,7 @@ func (c *BalanceHandler) GetBalancesHandler(ctx *gin.Context) {
 }
 
 func (c *BalanceHandler) GetBalances(ctx context.Context) ([]*ent.Balance, error) {
+
 	b, err := c.DB.Balance.Query().All(ctx)
 	if err != nil {
 		logger.Err("failed getting balances: " + err.Error())

@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 	"math"
-	entbalance "tracker/ent/balance"
+	"tracker/ent/balance"
 	"tracker/ent/category"
 	"tracker/ent/predicate"
 	"tracker/ent/transaction"
@@ -74,7 +74,7 @@ func (tq *TransactionQuery) QueryBalance() *BalanceQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(transaction.Table, transaction.FieldID, selector),
-			sqlgraph.To(entbalance.Table, entbalance.FieldID),
+			sqlgraph.To(balance.Table, balance.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, transaction.BalanceTable, transaction.BalanceColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
@@ -456,7 +456,7 @@ func (tq *TransactionQuery) loadBalance(ctx context.Context, query *BalanceQuery
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(entbalance.IDIn(ids...))
+	query.Where(balance.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err

@@ -1,7 +1,7 @@
 package schema
 
 import (
-	"tracker/core/balance"
+	"tracker/core/balance/currency"
 
 	"entgo.io/ent"
 	"entgo.io/ent/schema"
@@ -18,7 +18,7 @@ type Balance struct {
 func (Balance) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("title").Default(""),
-		field.Enum("currency").GoType(balance.Currency("")).Default(string(balance.UAH)),
+		field.Enum("currency").GoType(currency.Currency("")).Default(string(currency.UAH)),
 		field.Float("usd_to_currency").Default(1.0),
 	}
 }

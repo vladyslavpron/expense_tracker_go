@@ -4,13 +4,12 @@ package ent
 
 import (
 	"context"
+	"tracker/ent/balance"
 	"tracker/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-
-	entbalance "tracker/ent/balance"
 )
 
 // BalanceDelete is the builder for deleting a Balance entity.
@@ -41,7 +40,7 @@ func (bd *BalanceDelete) ExecX(ctx context.Context) int {
 }
 
 func (bd *BalanceDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(entbalance.Table, sqlgraph.NewFieldSpec(entbalance.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(balance.Table, sqlgraph.NewFieldSpec(balance.FieldID, field.TypeInt))
 	if ps := bd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -75,7 +74,7 @@ func (bdo *BalanceDeleteOne) Exec(ctx context.Context) error {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{entbalance.Label}
+		return &NotFoundError{balance.Label}
 	default:
 		return nil
 	}

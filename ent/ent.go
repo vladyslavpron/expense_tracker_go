@@ -8,15 +8,14 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+	"tracker/ent/balance"
+	"tracker/ent/category"
+	"tracker/ent/transaction"
+	"tracker/ent/user"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-
-	entbalance "tracker/ent/balance"
-	"tracker/ent/category"
-	"tracker/ent/transaction"
-	"tracker/ent/user"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -77,7 +76,7 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			entbalance.Table:  entbalance.ValidColumn,
+			balance.Table:     balance.ValidColumn,
 			category.Table:    category.ValidColumn,
 			transaction.Table: transaction.ValidColumn,
 			user.Table:        user.ValidColumn,

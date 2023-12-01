@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	entbalance "tracker/ent/balance"
+	"tracker/ent/balance"
 	"tracker/ent/category"
 	"tracker/ent/predicate"
 	"tracker/ent/transaction"
@@ -204,7 +204,7 @@ func (tu *TransactionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{transaction.BalanceColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(entbalance.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(balance.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -217,7 +217,7 @@ func (tu *TransactionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{transaction.BalanceColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(entbalance.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(balance.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -478,7 +478,7 @@ func (tuo *TransactionUpdateOne) sqlSave(ctx context.Context) (_node *Transactio
 			Columns: []string{transaction.BalanceColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(entbalance.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(balance.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -491,7 +491,7 @@ func (tuo *TransactionUpdateOne) sqlSave(ctx context.Context) (_node *Transactio
 			Columns: []string{transaction.BalanceColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(entbalance.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(balance.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

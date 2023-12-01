@@ -5,8 +5,8 @@ package ent
 import (
 	"fmt"
 	"strings"
-	"tracker/core/balance"
-	entbalance "tracker/ent/balance"
+	"tracker/core/balance/currency"
+	"tracker/ent/balance"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -20,7 +20,7 @@ type Balance struct {
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Currency holds the value of the "currency" field.
-	Currency balance.Currency `json:"currency,omitempty"`
+	Currency currency.Currency `json:"currency,omitempty"`
 	// UsdToCurrency holds the value of the "usd_to_currency" field.
 	UsdToCurrency float64 `json:"usd_to_currency,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -52,11 +52,11 @@ func (*Balance) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case entbalance.FieldUsdToCurrency:
+		case balance.FieldUsdToCurrency:
 			values[i] = new(sql.NullFloat64)
-		case entbalance.FieldID:
+		case balance.FieldID:
 			values[i] = new(sql.NullInt64)
-		case entbalance.FieldTitle, entbalance.FieldCurrency:
+		case balance.FieldTitle, balance.FieldCurrency:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -73,25 +73,25 @@ func (b *Balance) assignValues(columns []string, values []any) error {
 	}
 	for i := range columns {
 		switch columns[i] {
-		case entbalance.FieldID:
+		case balance.FieldID:
 			value, ok := values[i].(*sql.NullInt64)
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			b.ID = int(value.Int64)
-		case entbalance.FieldTitle:
+		case balance.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
 				b.Title = value.String
 			}
-		case entbalance.FieldCurrency:
+		case balance.FieldCurrency:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field currency", values[i])
 			} else if value.Valid {
-				b.Currency = balance.Currency(value.String)
+				b.Currency = currency.Currency(value.String)
 			}
-		case entbalance.FieldUsdToCurrency:
+		case balance.FieldUsdToCurrency:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field usd_to_currency", values[i])
 			} else if value.Valid {

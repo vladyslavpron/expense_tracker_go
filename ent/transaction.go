@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	entbalance "tracker/ent/balance"
+	"tracker/ent/balance"
 	"tracker/ent/category"
 	"tracker/ent/transaction"
 
@@ -52,7 +52,7 @@ func (e TransactionEdges) BalanceOrErr() (*Balance, error) {
 	if e.loadedTypes[0] {
 		if e.Balance == nil {
 			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: entbalance.Label}
+			return nil, &NotFoundError{label: balance.Label}
 		}
 		return e.Balance, nil
 	}

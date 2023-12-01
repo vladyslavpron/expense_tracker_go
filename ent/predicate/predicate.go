@@ -6,7 +6,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// Balance is the predicate function for entbalance builders.
+// Balance is the predicate function for balance builders.
 type Balance func(*sql.Selector)
 
 // Category is the predicate function for category builders.
